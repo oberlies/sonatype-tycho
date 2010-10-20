@@ -6,11 +6,9 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.sonatype.tycho.p2.DirectorApplicationWrapper;
 import org.sonatype.tycho.p2.MetadataSerializable;
 import org.sonatype.tycho.p2.P2Generator;
 import org.sonatype.tycho.p2.ProxyServiceFacade;
-import org.sonatype.tycho.p2.impl.director.DirectorApplicationWrapperImpl;
 import org.sonatype.tycho.p2.impl.proxy.ProxyServiceFacadeImpl;
 import org.sonatype.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.sonatype.tycho.p2.impl.repo.MetadataSerializableImpl;
@@ -45,7 +43,6 @@ public class Activator
             }
         }, null );
         context.registerService( P2Generator.class.getName(), new P2GeneratorImpl( false ), null );
-        context.registerService( DirectorApplicationWrapper.class.getName(), new DirectorApplicationWrapperImpl(), null );
         context.registerService( ProxyServiceFacade.class.getName(), new ProxyServiceFacadeImpl( context ), null );
         context.registerService( MetadataSerializable.class.getName(), new MetadataSerializableImpl( newProvisioningAgent() ), null );
     }

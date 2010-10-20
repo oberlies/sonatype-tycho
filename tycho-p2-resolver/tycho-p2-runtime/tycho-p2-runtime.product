@@ -73,6 +73,8 @@
       <plugin id="org.sonatype.tycho.p2.impl"/>
       <plugin id="org.sonatype.tycho.p2.maven.repository"/>
       <plugin id="org.sonatype.tycho.noopsecurity"/>
+      <plugin id="org.sonatype.tycho.p2.tools.facade"/>
+      <plugin id="org.sonatype.tycho.p2.tools.impl.director"/>
    </plugins>
 
    <configurations>
