@@ -98,6 +98,7 @@ public class DefaultEquinoxEmbedder
         // this tells framework to check parent classloader first
         // TODO specific package names
         properties.put( "org.osgi.framework.bootdelegation", "*" );
+        properties.put( "org.osgi.framework.system.packages.extra", "org.sonatype.tycho.p2.tools.director" );
 
         // properties.put( "eclipse.p2.data.area", dataArea.getAbsolutePath() );
 
