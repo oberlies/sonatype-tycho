@@ -4,12 +4,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.tycho.TargetEnvironment;
 import org.codehaus.tycho.TargetPlatform;
+import org.sonatype.tycho.equinox.EquinoxServiceFactory;
 import org.sonatype.tycho.p2.facade.P2MetadataRepositoryWriter;
 import org.sonatype.tycho.p2.facade.internal.P2ApplicationLauncher;
+import org.sonatype.tycho.p2.tools.publisher.BuildContext;
+import org.sonatype.tycho.p2.tools.publisher.PublisherService;
+import org.sonatype.tycho.p2.tools.publisher.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo
     extends AbstractP2Mojo
@@ -26,10 +34,13 @@ public abstract class AbstractPublishMojo
 
     /** @component */
     private P2MetadataRepositoryWriter metadataRepositoryWriter;
-    
+
+    /** @component */
+    private EquinoxServiceFactory osgiServices;
+
     /**
-     * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the process, never
-     * timing out.
+     * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
+     * process, never timing out.
      * 
      * @parameter expression="${p2.timeout}" default-value="0"
      */
@@ -40,16 +51,11 @@ public abstract class AbstractPublishMojo
     {
         try
         {
-
-            /*
-             * Restore the p2 view on the Tycho build target platform that was calculated earlier (see
-             * org.sonatype.tycho.p2.resolver.P2ResolverImpl .toResolutionResult). We cannot access the computation
-             * logic from here because it is contained in the OSGi bundle "org.sonatype.tycho.p2.impl" in Tycho's
-             * "OSGi layer" that cannot be accessed from current (lower) Mojo-Layer.
-             */
-            String contextRepositoryUrl =
+            File contextRepositoryLocation =
                 materializeRepository( new File( getProject().getBuild().getDirectory() ), getTargetPlatform(),
                                        getQualifier() );
+
+            String contextRepositoryUrl = contextRepositoryLocation.toURL().toExternalForm();
 
             P2ApplicationLauncher launcher = this.launcher;
 
@@ -79,7 +85,40 @@ public abstract class AbstractPublishMojo
         }
     }
 
-    String materializeRepository( File targetDirectory, TargetPlatform targetPlatform, String qualifier )
+    protected PublisherService createPublisherService()
+        throws MojoExecutionException
+    {
+        try
+        {
+            File buildDirectory = new File( getProject().getBuild().getDirectory() );
+
+            // TODO document/refactor
+            final File contextRepositoryLocation =
+                materializeRepository( buildDirectory, getTargetPlatform(), getQualifier() );
+
+            final PublisherServiceFactory publisherServiceFactory =
+                osgiServices.getService( PublisherServiceFactory.class );
+            final BuildContext context = new BuildContext( getQualifier(), getConfigurations(), buildDirectory );
+
+            // pass in the Tycho target platform as context for the publishers
+            final Collection<File> contextMetadataRepositories = Collections.singletonList( contextRepositoryLocation );
+            final Collection<File> contextArtifactRepositories = Collections.emptyList();
+
+            int flags = compress ? PublisherServiceFactory.REPOSITORY_COMPRESS : 0;
+            return publisherServiceFactory.createPublisher( getTargetRepositoryLocation(), contextMetadataRepositories,
+                                                            contextArtifactRepositories, context, flags );
+        }
+        catch ( Exception e )
+        {
+            throw new MojoExecutionException( "Exception while initializing the publisher service", e );
+        }
+    }
+
+    /**
+     * Restores the p2 view on the Tycho build target platform that was calculated earlier (see
+     * org.sonatype.tycho.p2.resolver.P2ResolverImpl.toResolutionResult).
+     */
+    private File materializeRepository( File targetDirectory, TargetPlatform targetPlatform, String qualifier )
         throws IOException
     {
         File repositoryLocation = new File( targetDirectory, "targetMetadataRepository" );
@@ -93,7 +132,7 @@ public abstract class AbstractPublishMojo
         {
             stream.close();
         }
-        return repositoryLocation.toURL().toExternalForm();
+        return repositoryLocation;
     }
 
     /**
@@ -105,11 +144,21 @@ public abstract class AbstractPublishMojo
     }
 
     /**
-     * @return The value of the -metadataRepository and -artifactRepository (always the same for us so far)
+     * @return The value of the -metadataRepository and -artifactRepository (always the same for us
+     *         so far)
      */
     private String getRepositoryUrl()
         throws MalformedURLException
     {
         return getTargetRepositoryLocation().toURL().toExternalForm();
+    }
+
+    /**
+     * @return the list of the current configurations in the form "ws.os.arch"
+     */
+    private String[] getConfigurations()
+    {
+        final List<TargetEnvironment> envs = getTargetPlatformConfiguration().getEnvironments();
+        return FacadeTools.getConfigurations( envs );
     }
 }
