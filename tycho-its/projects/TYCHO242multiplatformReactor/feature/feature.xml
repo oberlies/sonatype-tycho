@@ -45,4 +45,15 @@
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="bundle.osx"
+         os="osx"
+         ws="cocoa"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
 </feature>
