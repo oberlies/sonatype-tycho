@@ -16,6 +16,7 @@ import org.codehaus.tycho.model.PluginRef;
 import org.codehaus.tycho.model.ProductConfiguration;
 import org.sonatype.tycho.ArtifactDescriptor;
 import org.sonatype.tycho.ArtifactKey;
+import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
 
 /**
@@ -60,7 +61,7 @@ public final class PublishProductMojo
 
                     publisherService.publishProduct( buildProduct.productFile, getEquinoxExecutableFeature(), flavor );
                 }
-                catch ( Exception e )
+                catch ( FacadeException e )
                 {
                     throw new MojoExecutionException( "Exception while publishing product "
                         + product.getProductFile().getAbsolutePath(), e );
@@ -82,22 +83,28 @@ public final class PublishProductMojo
      * </p>
      */
     static Product prepareBuildProduct( Product product, File targetDir, String qualifier )
-        throws IOException
+        throws MojoExecutionException
     {
+        try
+        {
+            ProductConfiguration productConfiguration = ProductConfiguration.read( product.productFile );
 
-        ProductConfiguration productConfiguration = ProductConfiguration.read( product.productFile );
+            qualifyVersions( productConfiguration, qualifier );
 
-        qualifyVersions( productConfiguration, qualifier );
+            File buildProductDir = new File( targetDir, "products/" + productConfiguration.getId() );
+            buildProductDir.mkdirs();
+            final Product buildProduct =
+                new Product( new File( buildProductDir, product.getProductFile().getName() ),
+                             new File( buildProductDir, "p2.inf" ) );
+            ProductConfiguration.write( productConfiguration, buildProduct.productFile );
+            copyP2Inf( product.p2infFile, buildProduct.p2infFile );
 
-        File buildProductDir = new File( targetDir, "products/" + productConfiguration.getId() );
-        buildProductDir.mkdirs();
-        final Product buildProduct =
-            new Product( new File( buildProductDir, product.getProductFile().getName() ), new File( buildProductDir,
-                                                                                                    "p2.inf" ) );
-        ProductConfiguration.write( productConfiguration, buildProduct.productFile );
-        copyP2Inf( product.p2infFile, buildProduct.p2infFile );
-
-        return buildProduct;
+            return buildProduct;
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( "I/O exception while writing product definition to disk", e );
+        }
     }
 
     static void copyP2Inf( final File sourceP2Inf, final File buildP2Inf )

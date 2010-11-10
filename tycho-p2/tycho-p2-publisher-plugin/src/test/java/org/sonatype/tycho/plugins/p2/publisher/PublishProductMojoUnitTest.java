@@ -80,7 +80,7 @@ public class PublishProductMojoUnitTest
 
     @Test
     public void testPrepareBuildProduct()
-        throws IOException
+        throws Exception
     {
         File basedir = TestUtil.getBasedir( "unitTestResources" );
         File productFile = new File( basedir, "test.product" );
@@ -102,13 +102,14 @@ public class PublishProductMojoUnitTest
         File productFile = new File( sourceDirectory, "test.product" );
         productFile.createNewFile();
 
-        File p2InfTarget = new File(targetDirectory,"p2.inf");
-        PublishProductMojo.copyP2Inf( Product.getSourceP2InfFile( productFile), p2InfTarget );
+        File p2InfTarget = new File( targetDirectory, "p2.inf" );
+        PublishProductMojo.copyP2Inf( Product.getSourceP2InfFile( productFile ), p2InfTarget );
         Assert.assertFalse( p2InfTarget.exists() );
     }
 
     @Test
-    public void testGetSourceP2InfFile() throws IOException
+    public void testGetSourceP2InfFile()
+        throws IOException
     {
         String p2InfFile = Product.getSourceP2InfFile( new File( "./test/test.product" ) ).getCanonicalPath();
         Assert.assertEquals( new File( "./test/test.p2.inf" ).getCanonicalPath(), p2InfFile );

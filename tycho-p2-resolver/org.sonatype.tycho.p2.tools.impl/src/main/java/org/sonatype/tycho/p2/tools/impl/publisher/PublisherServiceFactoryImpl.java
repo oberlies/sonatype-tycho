@@ -6,11 +6,13 @@ import java.util.Collection;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.impl.Activator;
 import org.sonatype.tycho.p2.tools.publisher.BuildContext;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
@@ -24,27 +26,28 @@ public class PublisherServiceFactoryImpl
     public PublisherService createPublisher( File targetRepository, Collection<File> contextMetadataRepositories,
                                              Collection<File> contextArtifactRepositories, BuildContext context,
                                              int flags )
-        throws Exception
+        throws FacadeException
     {
-        // create an own instance of the provisioning agent to prevent cross talk with other things
-        // that happen in the Tycho OSGi runtime
-        File agentConfigurationFolder = new File( context.getTargetDirectory(), "p2agent" );
-        IProvisioningAgent agent = Activator.createProvisioningAgent( agentConfigurationFolder.toURI() );
-
+        IProvisioningAgent agent = null;
         try
         {
-            PublisherInfo publisherInfo = new PublisherInfo();
+            // create an own instance of the provisioning agent to prevent cross talk with other things
+            // that happen in the Tycho OSGi runtime
+            final File agentConfigurationFolder = new File( context.getTargetDirectory(), "p2agent" );
+            agent = Activator.createProvisioningAgent( agentConfigurationFolder.toURI() );
+
+            final PublisherInfo publisherInfo = new PublisherInfo();
             publisherInfo.setArtifactOptions( IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH );
 
-            boolean compress = ( flags & REPOSITORY_COMPRESS ) != 0;
-            boolean reusePackedFiles = false; // TODO check if we can/should use this
-            String repositoryName = "eclipse-repository"; // TODO proper name for repo, e.g. GAV? (pending in TYCHO-513)
-            IArtifactRepository targetArtifactRepo =
+            final boolean compress = ( flags & REPOSITORY_COMPRESS ) != 0;
+            final boolean reusePackedFiles = false; // TODO check if we can/should use this
+            final String repositoryName = "eclipse-repository"; // TODO proper name for repo, e.g. GAV? (pending in TYCHO-513)
+            final IArtifactRepository targetArtifactRepo =
                 Publisher.createArtifactRepository( agent, targetRepository.toURI(), repositoryName, compress,
                                                     reusePackedFiles );
             publisherInfo.setArtifactRepository( targetArtifactRepo );
 
-            boolean append = true;
+            final boolean append = true;
             publisherInfo.setMetadataRepository( Publisher.createMetadataRepository( agent, targetRepository.toURI(),
                                                                                      repositoryName, append, compress ) );
 
@@ -54,23 +57,28 @@ public class PublisherServiceFactoryImpl
             // set context repositories
             if ( contextMetadataRepositories != null && contextMetadataRepositories.size() > 0 )
             {
-                CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite( agent );
+                final CompositeMetadataRepository contextMetadata =
+                    CompositeMetadataRepository.createMemoryComposite( agent );
                 addToComposite( contextMetadataRepositories, contextMetadata );
                 publisherInfo.setContextMetadataRepository( contextMetadata );
             }
             if ( contextArtifactRepositories != null && contextArtifactRepositories.size() > 0 )
             {
-                CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite( agent );
+                final CompositeArtifactRepository contextArtifact =
+                    CompositeArtifactRepository.createMemoryComposite( agent );
                 addToComposite( contextArtifactRepositories, contextArtifact );
                 publisherInfo.setContextArtifactRepository( contextArtifact );
             }
 
             return new PublisherServiceImpl( context, publisherInfo, agent );
         }
-        catch ( Exception e )
+        catch ( ProvisionException e )
         {
-            agent.stop();
-            throw e;
+            if ( agent != null )
+            {
+                agent.stop();
+            }
+            throw new FacadeException( e );
         }
     }
 

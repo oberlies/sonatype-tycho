@@ -13,6 +13,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
+import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.publisher.BuildContext;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
 
@@ -35,10 +36,10 @@ public class PublisherServiceImpl
     }
 
     public Collection<IInstallableUnit> publishCategories( File categoryDefinition )
-        throws Exception, IllegalStateException
+        throws FacadeException, IllegalStateException
     {
         checkRunning();
-        
+
         /*
          * At this point, we expect that the category.xml file does no longer contain any
          * "qualifier" literals; it is expected that they have been replaced before. Nevertheless we
@@ -52,10 +53,10 @@ public class PublisherServiceImpl
     }
 
     public Collection<IInstallableUnit> publishProduct( File productDefinition, File launcherBinaries, String flavor )
-        throws Exception, IllegalStateException
+        throws FacadeException, IllegalStateException
     {
         checkRunning();
-        
+
         IProductDescriptor productDescriptor = null;
         try
         {
@@ -69,7 +70,7 @@ public class PublisherServiceImpl
     }
 
     private Collection<IInstallableUnit> executePublisher( IPublisherAction action )
-        throws Exception
+        throws FacadeException
     {
         ResultSpyAction resultSpy = new ResultSpyAction();
         IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
@@ -78,7 +79,7 @@ public class PublisherServiceImpl
         IStatus result = publisher.publish( actions, null );
         if ( !result.isOK() )
         {
-            throw new Exception( result.getMessage(), result.getException() );
+            throw new FacadeException( result.getMessage(), result.getException() );
         }
 
         Collection<IInstallableUnit> rootIUs = resultSpy.getRootIUs();

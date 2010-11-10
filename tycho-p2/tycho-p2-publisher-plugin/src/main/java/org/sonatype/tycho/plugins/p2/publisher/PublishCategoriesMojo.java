@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.tycho.model.Category;
+import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
 
 /**
@@ -38,7 +39,7 @@ public class PublishCategoriesMojo
                 publisherService.publishCategories( buildCategoryFile );
             }
         }
-        catch ( Exception e )
+        catch ( FacadeException e )
         {
             throw new MojoExecutionException( "Exception while publishing categories: " + e.getMessage(), e );
         }
@@ -55,12 +56,19 @@ public class PublishCategoriesMojo
      *            qualifier.
      */
     private File prepareBuildCategory( Category category, File buildFolder )
-        throws IOException
+        throws MojoExecutionException
     {
-        File ret = new File( buildFolder, "category.xml" );
-        buildFolder.mkdirs();
-        Category.write( category, ret );
-        return ret;
+        try
+        {
+            File ret = new File( buildFolder, "category.xml" );
+            buildFolder.mkdirs();
+            Category.write( category, ret );
+            return ret;
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( "I/O exception while writing category definition to disk", e );
+        }
     }
 
     private List<Category> getCategories()

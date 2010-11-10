@@ -3,6 +3,8 @@ package org.sonatype.tycho.p2.tools.publisher;
 import java.io.File;
 import java.util.Collection;
 
+import org.sonatype.tycho.p2.tools.FacadeException;
+
 public interface PublisherService
 {
     /**
@@ -10,10 +12,10 @@ public interface PublisherService
      * 
      * @param categoryDefinition A category.xml file as defined by the Eclipse PDE
      * @throws IllegalStateException if the instance has already been stopped
-     * @throws Exception if an internal exception occurs
+     * @throws FacadeException if a checked exception occurs internally
      */
     Collection<?> publishCategories( File categoryDefinition )
-        throws Exception, IllegalStateException;
+        throws FacadeException, IllegalStateException;
 
     /**
      * Publishes the given product definition.
@@ -22,10 +24,10 @@ public interface PublisherService
      * @param launcherBinaries A folder that contains the native Eclipse launcher binaries
      * @param flavor The installation flavor the product shall be published for
      * @throws IllegalStateException if the instance has already been stopped
-     * @throws Exception if an internal exception occurs
+     * @throws FacadeException if a checked exception occurs internally
      */
     Collection<?> publishProduct( File productDefinition, File launcherBinaries, String flavor )
-        throws Exception, IllegalStateException;
+        throws FacadeException, IllegalStateException;
 
     /**
      * Stops this PublisherService instance. This shuts down and unregisters internally used

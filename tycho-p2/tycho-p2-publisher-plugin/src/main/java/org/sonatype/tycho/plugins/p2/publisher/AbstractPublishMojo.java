@@ -15,6 +15,7 @@ import org.codehaus.tycho.TargetPlatform;
 import org.sonatype.tycho.equinox.EquinoxServiceFactory;
 import org.sonatype.tycho.p2.facade.P2MetadataRepositoryWriter;
 import org.sonatype.tycho.p2.facade.internal.P2ApplicationLauncher;
+import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.publisher.BuildContext;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
 import org.sonatype.tycho.p2.tools.publisher.PublisherServiceFactory;
@@ -75,11 +76,7 @@ public abstract class AbstractPublishMojo
                 throw new MojoFailureException( "P2 publisher return code was " + result );
             }
         }
-        catch ( MojoFailureException e )
-        {
-            throw e;
-        }
-        catch ( Exception ioe )
+        catch ( IOException ioe )
         {
             throw new MojoExecutionException( "Unable to execute the publisher", ioe );
         }
@@ -108,7 +105,7 @@ public abstract class AbstractPublishMojo
             return publisherServiceFactory.createPublisher( getTargetRepositoryLocation(), contextMetadataRepositories,
                                                             contextArtifactRepositories, context, flags );
         }
-        catch ( Exception e )
+        catch ( FacadeException e )
         {
             throw new MojoExecutionException( "Exception while initializing the publisher service", e );
         }
@@ -119,20 +116,27 @@ public abstract class AbstractPublishMojo
      * org.sonatype.tycho.p2.resolver.P2ResolverImpl.toResolutionResult).
      */
     private File materializeRepository( File targetDirectory, TargetPlatform targetPlatform, String qualifier )
-        throws IOException
+        throws MojoExecutionException
     {
-        File repositoryLocation = new File( targetDirectory, "targetMetadataRepository" );
-        repositoryLocation.mkdirs();
-        FileOutputStream stream = new FileOutputStream( new File( repositoryLocation, "content.xml" ) );
         try
         {
-            metadataRepositoryWriter.write( stream, targetPlatform, qualifier );
+            File repositoryLocation = new File( targetDirectory, "targetMetadataRepository" );
+            repositoryLocation.mkdirs();
+            FileOutputStream stream = new FileOutputStream( new File( repositoryLocation, "content.xml" ) );
+            try
+            {
+                metadataRepositoryWriter.write( stream, targetPlatform, qualifier );
+            }
+            finally
+            {
+                stream.close();
+            }
+            return repositoryLocation;
         }
-        finally
+        catch ( IOException e )
         {
-            stream.close();
+            throw new MojoExecutionException( "I/O exception while writing the build target platform to disk", e );
         }
-        return repositoryLocation;
     }
 
     /**

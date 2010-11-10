@@ -3,6 +3,8 @@ package org.sonatype.tycho.p2.tools.publisher;
 import java.io.File;
 import java.util.Collection;
 
+import org.sonatype.tycho.p2.tools.FacadeException;
+
 public interface PublisherServiceFactory
 {
     /**
@@ -25,9 +27,9 @@ public interface PublisherServiceFactory
      * @param flags Additional flags. The only supported flag is <tt>REPOSITORY_COMPRESS</tt>
      * @return A new {@link PublisherService} instance. The caller is responsible to call
      *         <tt>stop</tt> on the instance after use
-     * @throws Exception if an internal exception occurs
+     * @throws FacadeException if a checked exception occurs internally
      */
     PublisherService createPublisher( File targetRepository, Collection<File> contextMetadataRepositories,
                                       Collection<File> contextArtifactRepositories, BuildContext context, int flags )
-        throws Exception;
+        throws FacadeException;
 }
