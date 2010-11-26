@@ -2,6 +2,7 @@ package org.sonatype.tycho.plugins.p2.publisher;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -19,6 +20,7 @@ import org.sonatype.tycho.p2.tools.publisher.PublisherService;
 public class PublishCategoriesMojo
     extends AbstractPublishMojo
 {
+
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -26,17 +28,17 @@ public class PublishCategoriesMojo
     }
 
     private void publishCategories()
-        throws MojoExecutionException
+        throws MojoExecutionException, MojoFailureException
     {
         PublisherService publisherService = createPublisherService();
         try
         {
             for ( Category category : getCategories() )
             {
-                final File buildCategoryFile =
-                    prepareBuildCategory( category, new File( getProject().getBuild().getDirectory() ) );
+                final File buildCategoryFile = prepareBuildCategory( category, getBuildDirectory() );
 
-                publisherService.publishCategories( buildCategoryFile );
+                Collection<?> ius = publisherService.publishCategories( buildCategoryFile );
+                postPublishedIUs( ius );
             }
         }
         catch ( FacadeException e )

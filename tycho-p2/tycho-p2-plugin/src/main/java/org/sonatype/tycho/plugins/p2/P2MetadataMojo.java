@@ -11,8 +11,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.tycho.osgitools.DefaultReactorProject;
-import org.sonatype.tycho.ReactorProject;
 import org.sonatype.tycho.equinox.EquinoxServiceFactory;
 import org.sonatype.tycho.p2.IArtifactFacade;
 import org.sonatype.tycho.p2.P2Generator;
@@ -74,7 +72,7 @@ public class P2MetadataMojo
             throw new IllegalStateException();
         }
 
-        File contentFile = new File( project.getBuild().getDirectory(), "p2content.xml" );
+        File contentFile = new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_P2_METADATA );
         File artifactsFile = new File( project.getBuild().getDirectory(), "p2artifacts.xml" );
 
         try

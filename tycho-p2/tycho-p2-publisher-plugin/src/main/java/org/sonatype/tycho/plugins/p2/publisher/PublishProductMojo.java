@@ -3,6 +3,7 @@ package org.sonatype.tycho.plugins.p2.publisher;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -55,11 +56,12 @@ public final class PublishProductMojo
             {
                 try
                 {
-                    final Product buildProduct =
-                        prepareBuildProduct( product, new File( getProject().getBuild().getDirectory() ),
-                                             getQualifier() );
+                    final Product buildProduct = prepareBuildProduct( product, getBuildDirectory(), getQualifier() );
 
-                    publisherService.publishProduct( buildProduct.productFile, getEquinoxExecutableFeature(), flavor );
+                    Collection<?> ius =
+                        publisherService.publishProduct( buildProduct.productFile, getEquinoxExecutableFeature(),
+                                                         flavor );
+                    postPublishedIUs( ius );
                 }
                 catch ( FacadeException e )
                 {

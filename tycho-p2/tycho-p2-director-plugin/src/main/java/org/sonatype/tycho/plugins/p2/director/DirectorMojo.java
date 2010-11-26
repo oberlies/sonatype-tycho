@@ -10,7 +10,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.tycho.TargetEnvironment;
 import org.codehaus.tycho.TargetPlatform;
 import org.sonatype.tycho.equinox.EquinoxServiceFactory;
-import org.sonatype.tycho.p2.facade.P2MetadataRepositoryWriter;
+import org.sonatype.tycho.p2.facade.RepositoryReferenceTool;
 import org.sonatype.tycho.p2.tools.director.DirectorApplicationWrapper;
 
 /**
@@ -35,7 +35,7 @@ public final class DirectorMojo
     private String qualifier;
 
     /** @component */
-    private P2MetadataRepositoryWriter metadataRepositoryWriter;
+    private RepositoryReferenceTool metadataRepositoryWriter;
 
     public void execute()
         throws MojoExecutionException, MojoFailureException
@@ -56,7 +56,8 @@ public final class DirectorMojo
 
                     File destination = getProductMaterializeDirectory( product, env );
                     String rootFolder = product.getRootFolder();
-                    if (rootFolder != null && !rootFolder.isEmpty()) {
+                    if ( rootFolder != null && !rootFolder.isEmpty() )
+                    {
                         destination = new File( destination, rootFolder );
                     }
 

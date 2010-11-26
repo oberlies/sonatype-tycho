@@ -2,6 +2,7 @@ package org.sonatype.tycho.p2.tools.impl.publisher;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -13,8 +14,8 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
+import org.sonatype.tycho.p2.tools.BuildContext;
 import org.sonatype.tycho.p2.tools.FacadeException;
-import org.sonatype.tycho.p2.tools.publisher.BuildContext;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
 import org.sonatype.tycho.p2.util.StatusTool;
 
@@ -29,6 +30,14 @@ public class PublisherServiceImpl
 
     private IProvisioningAgent agent;
 
+    /**
+     * Creates a new service to execute certain publisher actions.
+     * 
+     * @param context Context information about the running Maven build.
+     * @param publisherInfo The publisher info with target and context repositories configured.
+     * @param agent The provisioning agent used to populate the publisher info. The responsibility
+     *            for this instance is passed to the newly created instance.
+     */
     PublisherServiceImpl( BuildContext context, IPublisherInfo publisherInfo, IProvisioningAgent agent )
     {
         this.context = context;
@@ -67,7 +76,18 @@ public class PublisherServiceImpl
         {
             throw new IllegalArgumentException( "Unable to load product file " + productDefinition.getAbsolutePath(), e ); //$NON-NLS-1$
         }
-        return executePublisher( new ProductAction( null, productDescriptor, flavor, launcherBinaries ) );
+
+        /*
+         * TODO Fix in Eclipse: the product publisher should not return IUs as root IUs that are
+         * contained in the product IU. Then there should be no more IUs with filters (which give
+         * trouble when mirroring). Alternative: make mirror application (used in
+         * MirrorApplicationService) silently ignore root IUs whose filters are not applicable.
+         */
+        Collection<IInstallableUnit> rootIUs =
+            executePublisher( new ProductAction( null, productDescriptor, flavor, launcherBinaries ) );
+
+        // workaround: we know the ID of the product IU
+        return selectUnit( rootIUs, productDescriptor.getId() );
     }
 
     private Collection<IInstallableUnit> executePublisher( IPublisherAction action )
@@ -83,8 +103,23 @@ public class PublisherServiceImpl
             throw new FacadeException( StatusTool.collectProblems( result ), result.getException() );
         }
 
-        Collection<IInstallableUnit> rootIUs = resultSpy.getRootIUs();
-        return rootIUs;
+        /*
+         * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
+         * publisher produces no "inner" IUs, so just return all IUs
+         */
+        return resultSpy.getAllIUs();
+    }
+
+    private Collection<IInstallableUnit> selectUnit( Collection<IInstallableUnit> units, String id )
+    {
+        for ( IInstallableUnit unit : units )
+        {
+            if ( id.equals( unit.getId() ) )
+            {
+                return Collections.singleton( unit );
+            }
+        }
+        throw new IllegalStateException( "ProductAction did not produce product IU" );
     }
 
     public void stop()

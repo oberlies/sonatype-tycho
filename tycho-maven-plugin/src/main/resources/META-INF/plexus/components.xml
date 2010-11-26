@@ -298,7 +298,7 @@
               	org.sonatype.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories
               </compile>
               <package>
-                org.sonatype.tycho:tycho-p2-publisher-plugin:${project.version}:publish-features-and-bundles,
+                org.sonatype.tycho:tycho-p2-publisher-plugin:${project.version}:assemble-repository,
                 org.sonatype.tycho:tycho-p2-publisher-plugin:${project.version}:archive-repository
               </package>
               <install>

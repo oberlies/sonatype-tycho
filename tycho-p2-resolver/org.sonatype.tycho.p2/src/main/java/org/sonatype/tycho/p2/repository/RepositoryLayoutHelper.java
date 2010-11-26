@@ -3,8 +3,6 @@ package org.sonatype.tycho.p2.repository;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-
-
 public class RepositoryLayoutHelper
 {
     public static final String PROP_GROUP_ID = "maven-groupId";
@@ -19,6 +17,13 @@ public class RepositoryLayoutHelper
 
     public static final String EXTENSION_P2_METADATA = "xml";
 
+    /**
+     * Name of the file where the module p2 metadata is stored in the target directory. The name
+     * needs to be known so that the target folder can be read as metadata repository (see
+     * {@link org.sonatype.tycho.p2.maven.repository.ModuleMetadataRepository}).
+     */
+    public static final String FILE_NAME_P2_METADATA = "p2content.xml";
+
     public static final String CLASSIFIER_P2_ARTIFACTS = "p2artifacts";
 
     public static final String EXTENSION_P2_ARTIFACTS = "xml";
@@ -31,7 +36,7 @@ public class RepositoryLayoutHelper
     }
 
     public static String getRelativePath( String groupId, String artifactId, String version, String classifier,
-        String extension )
+                                          String extension )
     {
         StringBuilder sb = new StringBuilder();
 
