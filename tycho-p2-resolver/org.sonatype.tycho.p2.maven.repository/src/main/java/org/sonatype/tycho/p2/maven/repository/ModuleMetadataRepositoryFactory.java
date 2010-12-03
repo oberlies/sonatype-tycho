@@ -33,7 +33,7 @@ public class ModuleMetadataRepositoryFactory
         return null;
     }
 
-    private ModuleMetadataRepository load( File repositoryDir, int flags )
+    private IMetadataRepository load( File repositoryDir, int flags )
         throws ProvisionException
     {
         if ( ModuleMetadataRepository.canAttemptRead( repositoryDir ) )

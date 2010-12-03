@@ -44,6 +44,7 @@ public class MirrorApplicationServiceImpl
 
             final RepositoryDescriptor destinationDescriptor = new RepositoryDescriptor();
             destinationDescriptor.setLocation( destination.toURI() );
+            destinationDescriptor.setAppend( true );
             destinationDescriptor.setCompressed( ( flags & REPOSITORY_COMPRESS ) != 0 );
             mirrorApp.addDestination( destinationDescriptor );
 
@@ -59,7 +60,7 @@ public class MirrorApplicationServiceImpl
                 Map<String, String> filter = new HashMap<String, String>();
                 addFilterForFeatureJARs( filter );
 
-                // PermissiveSlicer only considers filtere if there is _more_ than one property
+                // PermissiveSlicer only considers filters if there is _more_ than one property
                 // TODO Proper fix at Eclipse?
                 filter.put( "dummy.abc", "false" );
                 options.setFilter( filter );

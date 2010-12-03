@@ -1,5 +1,15 @@
 package org.sonatype.tycho.plugins.p2;
 
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.CLASSIFIER_P2_METADATA;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.EXTENSION_P2_METADATA;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.FILE_NAME_P2_METADATA;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED;
+import static org.sonatype.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_MAIN;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,7 +30,6 @@ import org.sonatype.tycho.equinox.EquinoxServiceFactory;
 import org.sonatype.tycho.p2.IArtifactFacade;
 import org.sonatype.tycho.p2.P2Generator;
 import org.sonatype.tycho.p2.facade.internal.ArtifactFacade;
-import org.sonatype.tycho.p2.repository.RepositoryLayoutHelper;
 
 /**
  * @goal p2-metadata
@@ -77,9 +86,9 @@ public class P2MetadataMojo
             throw new IllegalStateException();
         }
 
-        File contentFile = new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_P2_METADATA );
+        File contentFile = new File( project.getBuild().getDirectory(), FILE_NAME_P2_METADATA );
         File artifactsFile =
-            new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS );
+            new File( project.getBuild().getDirectory(), FILE_NAME_P2_ARTIFACTS );
 
         try
         {
@@ -99,14 +108,14 @@ public class P2MetadataMojo
             throw new MojoExecutionException( "Could not generate P2 metadata", e );
         }
 
-        projectHelper.attachArtifact( project, RepositoryLayoutHelper.EXTENSION_P2_METADATA,
-                                      RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, contentFile );
+        projectHelper.attachArtifact( project, EXTENSION_P2_METADATA,
+                                      CLASSIFIER_P2_METADATA, contentFile );
 
-        projectHelper.attachArtifact( project, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS,
-                                      RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, artifactsFile );
+        projectHelper.attachArtifact( project, EXTENSION_P2_ARTIFACTS,
+                                      CLASSIFIER_P2_ARTIFACTS, artifactsFile );
 
         File localArtifactsFile =
-            new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS );
+            new File( project.getBuild().getDirectory(), FILE_NAME_LOCAL_ARTIFACTS );
         writeArtifactLocations( localArtifactsFile, getAllProjectArtifacts( project ) );
     }
 
@@ -138,11 +147,11 @@ public class P2MetadataMojo
         {
             if ( entry.getKey() == null )
             {
-                outputProperties.put( "artifact.main", entry.getValue().getAbsolutePath() );
+                outputProperties.put( KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath() );
             }
             else
             {
-                outputProperties.put( "artifact.attached." + entry.getKey(), entry.getValue().getAbsolutePath() );
+                outputProperties.put( KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath() );
             }
         }
 

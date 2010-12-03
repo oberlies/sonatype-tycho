@@ -1,5 +1,6 @@
 package org.sonatype.tycho.plugins.p2.publisher;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -8,6 +9,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.tycho.equinox.EquinoxServiceFactory;
+import org.sonatype.tycho.p2.facade.RepositoryReferenceTool;
 import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.RepositoryReferences;
 import org.sonatype.tycho.p2.tools.publisher.PublisherService;
@@ -21,16 +23,41 @@ public abstract class AbstractPublishMojo
     /** @component */
     private EquinoxServiceFactory osgiServices;
 
-    protected PublisherService createPublisherService()
+    public final void execute()
+        throws MojoExecutionException, MojoFailureException
+    {
+        PublisherService publisherService = createPublisherService();
+        try
+        {
+            Collection<?> units = publishContent( publisherService );
+            postPublishedIUs( units );
+        }
+        finally
+        {
+            publisherService.stop();
+        }
+    }
+
+    /**
+     * Publishes source files with the help of the given publisher service.
+     * 
+     * @param publisherService
+     * @return the list of root installable units that has been published
+     */
+    protected abstract Collection<?/* IInstallableUnit */> publishContent( PublisherService publisherService )
+        throws MojoExecutionException, MojoFailureException;
+
+    private PublisherService createPublisherService()
         throws MojoExecutionException, MojoFailureException
     {
         try
         {
             RepositoryReferences contextRepositories = getVisibleRepositories( false );
 
-            final PublisherServiceFactory publisherServiceFactory =
-                osgiServices.getService( PublisherServiceFactory.class );
-            return publisherServiceFactory.createPublisher( getPublisherRepositoryLocation(), contextRepositories,
+            PublisherServiceFactory publisherServiceFactory = osgiServices.getService( PublisherServiceFactory.class );
+            File publisherRepoLocation =
+                new File( getBuildDirectory(), RepositoryReferenceTool.PUBLISHER_REPOSITORY_PATH );
+            return publisherServiceFactory.createPublisher( publisherRepoLocation, contextRepositories,
                                                             getBuildContext() );
         }
         catch ( FacadeException e )
@@ -44,18 +71,15 @@ public abstract class AbstractPublishMojo
      * eventually uses the units in that list as entry-points for mirroring content into the
      * assembly p2 repository.
      */
-    protected void postPublishedIUs( Collection<?> units )
+    private void postPublishedIUs( Collection<?> units )
     {
         final MavenProject project = getProject();
-        synchronized ( PUBLISHED_ROOT_IUS )
+        List<Object> publishedIUs = (List<Object>) project.getContextValue( PUBLISHED_ROOT_IUS );
+        if ( publishedIUs == null )
         {
-            List<Object> publishedIUs = (List<Object>) project.getContextValue( PUBLISHED_ROOT_IUS );
-            if ( publishedIUs == null )
-            {
-                publishedIUs = new ArrayList<Object>();
-                project.setContextValue( PUBLISHED_ROOT_IUS, publishedIUs );
-            }
-            publishedIUs.addAll( units );
+            publishedIUs = new ArrayList<Object>();
+            project.setContextValue( PUBLISHED_ROOT_IUS, publishedIUs );
         }
+        publishedIUs.addAll( units );
     }
 }

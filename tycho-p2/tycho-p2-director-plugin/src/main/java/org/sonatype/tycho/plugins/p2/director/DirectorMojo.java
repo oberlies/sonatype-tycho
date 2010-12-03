@@ -48,7 +48,7 @@ public final class DirectorMojo
 
                 File destination = getProductMaterializeDirectory( product, env );
                 String rootFolder = product.getRootFolder();
-                if ( rootFolder != null && !rootFolder.isEmpty() )
+                if ( rootFolder != null && rootFolder.length() > 0 )
                 {
                     destination = new File( destination, rootFolder );
                 }

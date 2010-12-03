@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SourceDescriptorTest
+public class RepositoryReferencesTest
 {
     private static final File LOCATION_A = new File( "a/location" );
 

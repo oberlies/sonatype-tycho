@@ -12,8 +12,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 public class ModuleArtifactRepositoryFactory
     extends ArtifactRepositoryFactory
 {
-
-    private static final String REPOSITORY_TYPE = "ModuleArtifactRepository";
+    private static final String REPOSITORY_TYPE = ModuleArtifactRepository.class.getSimpleName();
 
     @Override
     public IArtifactRepository create( URI location, String name, String type, Map<String, String> properties )

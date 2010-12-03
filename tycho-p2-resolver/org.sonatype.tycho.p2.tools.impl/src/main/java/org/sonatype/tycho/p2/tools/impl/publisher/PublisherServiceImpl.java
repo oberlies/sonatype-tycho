@@ -59,7 +59,13 @@ public class PublisherServiceImpl
          */
         CategoryXMLAction categoryXMLAction =
             new CategoryXMLAction( categoryDefinition.toURI(), context.getQualifier() );
-        return executePublisher( categoryXMLAction );
+
+        /*
+         * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
+         * publisher produces no "inner" IUs, so just return all IUs
+         */
+        Collection<IInstallableUnit> allIUs = executePublisher( categoryXMLAction );
+        return allIUs;
     }
 
     public Collection<IInstallableUnit> publishProduct( File productDefinition, File launcherBinaries, String flavor )
@@ -77,17 +83,12 @@ public class PublisherServiceImpl
             throw new IllegalArgumentException( "Unable to load product file " + productDefinition.getAbsolutePath(), e ); //$NON-NLS-1$
         }
 
-        /*
-         * TODO Fix in Eclipse: the product publisher should not return IUs as root IUs that are
-         * contained in the product IU. Then there should be no more IUs with filters (which give
-         * trouble when mirroring). Alternative: make mirror application (used in
-         * MirrorApplicationService) silently ignore root IUs whose filters are not applicable.
-         */
-        Collection<IInstallableUnit> rootIUs =
+        // TODO Fix in Eclipse: the product action should only return the product IU as root IU
+        Collection<IInstallableUnit> allIUs =
             executePublisher( new ProductAction( null, productDescriptor, flavor, launcherBinaries ) );
 
         // workaround: we know the ID of the product IU
-        return selectUnit( rootIUs, productDescriptor.getId() );
+        return selectUnit( allIUs, productDescriptor.getId() );
     }
 
     private Collection<IInstallableUnit> executePublisher( IPublisherAction action )
@@ -103,10 +104,6 @@ public class PublisherServiceImpl
             throw new FacadeException( StatusTool.collectProblems( result ), result.getException() );
         }
 
-        /*
-         * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
-         * publisher produces no "inner" IUs, so just return all IUs
-         */
         return resultSpy.getAllIUs();
     }
 

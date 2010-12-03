@@ -112,11 +112,6 @@ public abstract class AbstractP2Mojo
         return repositoryReferenceTool.getVisibleRepositories( getProject(), getSession(), flags );
     }
 
-    protected File getPublisherRepositoryLocation()
-    {
-        return new File( getBuildDirectory(), RepositoryReferenceTool.PUBLISHER_REPOSITORY_PATH );
-    }
-
     protected File getAssemblyRepositoryLocation()
     {
         return new File( getBuildDirectory(), "repository" );

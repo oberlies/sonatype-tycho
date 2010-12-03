@@ -40,7 +40,7 @@ public class Tycho491PublishFeaturesAndCategoriesTest
          * Do not execute "install" to ensure that features and bundles can be included directly
          * from the build results of the local reactor.
          */
-        verifier.executeGoal( "verify" );
+        verifier.executeGoal( "package" );
         verifier.verifyErrorFreeLog();
 
         File repoDir = new File( verifier.getBasedir(), MODULE + "/target/repository" );

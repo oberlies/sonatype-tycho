@@ -10,11 +10,11 @@ import java.util.List;
  * List of p2 repositories for a p2 operation. Instances of this class store a list of metadata and
  * artifact repositories each, preserving the order in which the repositories were added.
  */
-public class RepositoryReferences
+public final class RepositoryReferences
 {
-    final List<URI> metadataRepos = new ArrayList<URI>();
+    private final List<URI> metadataRepos = new ArrayList<URI>();
 
-    List<URI> artifactRepos;
+    private final List<URI> artifactRepos = new ArrayList<URI>();
 
     /**
      * Adds the metadata repository at the given location.
@@ -35,8 +35,6 @@ public class RepositoryReferences
      */
     public void addArtifactRepository( File artifactRepositoryLocation )
     {
-        if ( artifactRepos == null )
-            artifactRepos = new ArrayList<URI>();
         artifactRepos.add( artifactRepositoryLocation.toURI() );
     }
 
@@ -57,8 +55,6 @@ public class RepositoryReferences
      */
     public List<URI> getArtifactRepositories()
     {
-        if ( artifactRepos == null )
-            return Collections.emptyList();
         return Collections.unmodifiableList( artifactRepos );
     }
 }

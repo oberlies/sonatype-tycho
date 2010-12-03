@@ -40,40 +40,28 @@ public final class PublishProductMojo
      */
     private UnArchiver deflater;
 
-    public void execute()
+    @Override
+    protected Collection<?> publishContent( PublisherService publisherService )
         throws MojoExecutionException, MojoFailureException
     {
-        publishProducts();
-    }
-
-    private void publishProducts()
-        throws MojoExecutionException, MojoFailureException
-    {
-        PublisherService publisherService = createPublisherService();
-        try
+        List<Object> productIUs = new ArrayList<Object>();
+        for ( Product product : getProducts() )
         {
-            for ( Product product : getProducts() )
+            try
             {
-                try
-                {
-                    final Product buildProduct = prepareBuildProduct( product, getBuildDirectory(), getQualifier() );
+                final Product buildProduct = prepareBuildProduct( product, getBuildDirectory(), getQualifier() );
 
-                    Collection<?> ius =
-                        publisherService.publishProduct( buildProduct.productFile, getEquinoxExecutableFeature(),
-                                                         flavor );
-                    postPublishedIUs( ius );
-                }
-                catch ( FacadeException e )
-                {
-                    throw new MojoExecutionException( "Exception while publishing product "
-                        + product.getProductFile().getAbsolutePath(), e );
-                }
+                Collection<?> ius =
+                    publisherService.publishProduct( buildProduct.productFile, getEquinoxExecutableFeature(), flavor );
+                productIUs.addAll( ius );
+            }
+            catch ( FacadeException e )
+            {
+                throw new MojoExecutionException( "Exception while publishing product "
+                    + product.getProductFile().getAbsolutePath(), e );
             }
         }
-        finally
-        {
-            publisherService.stop();
-        }
+        return productIUs;
     }
 
     /**
@@ -184,7 +172,7 @@ public final class PublishProductMojo
         {
             if ( plugRef.getVersion() != null && plugRef.getVersion().indexOf( VersioningHelper.QUALIFIER ) != -1 )
             {
-                String newVersion = replaceQualifier(plugRef.getVersion(), buildQualifier );
+                String newVersion = replaceQualifier( plugRef.getVersion(), buildQualifier );
                 plugRef.setVersion( newVersion );
             }
         }
