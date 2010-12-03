@@ -19,14 +19,36 @@ public class RepositoryLayoutHelper
 
     /**
      * Name of the file where the module p2 metadata is stored in the target directory. The name
-     * needs to be known so that the target folder can be read as metadata repository (see
-     * {@link org.sonatype.tycho.p2.maven.repository.ModuleMetadataRepository}).
+     * needs to be known so that the target folder can be read as p2 metadata repository.
      */
     public static final String FILE_NAME_P2_METADATA = "p2content.xml";
 
     public static final String CLASSIFIER_P2_ARTIFACTS = "p2artifacts";
 
     public static final String EXTENSION_P2_ARTIFACTS = "xml";
+
+    /**
+     * Name of the file that contains the p2 artifact index. This file is one of the files needed to
+     * read the target folder as p2 artifact repository. The location is relative to the build
+     * target directory root.
+     */
+    public static final String FILE_NAME_P2_ARTIFACTS = "p2artifacts.xml";
+
+    /**
+     * Name of the file that stores the location of the Maven artifact in the target folder. This
+     * file is one of the files needed to read the target folder as p2 artifact repository.
+     */
+    public static final String FILE_NAME_LOCAL_ARTIFACTS = "local-artifacts.properties";
+
+    /**
+     * Key for the main artifact location in {@value #FILE_NAME_LOCAL_ARTIFACTS} files.
+     */
+    public static final String KEY_ARTIFACT_MAIN = "artifact.main";
+
+    /**
+     * Key prefix for attached artifact locations in {@value #FILE_NAME_LOCAL_ARTIFACTS} files.
+     */
+    public static final String KEY_ARTIFACT_ATTACHED = "artifact.attached.";
 
     public static final String DEFAULT_EXTERNSION = "jar";
 

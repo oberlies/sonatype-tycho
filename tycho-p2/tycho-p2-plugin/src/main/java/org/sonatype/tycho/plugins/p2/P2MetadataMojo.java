@@ -1,9 +1,14 @@
 package org.sonatype.tycho.plugins.p2;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -73,7 +78,8 @@ public class P2MetadataMojo
         }
 
         File contentFile = new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_P2_METADATA );
-        File artifactsFile = new File( project.getBuild().getDirectory(), "p2artifacts.xml" );
+        File artifactsFile =
+            new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS );
 
         try
         {
@@ -98,6 +104,71 @@ public class P2MetadataMojo
 
         projectHelper.attachArtifact( project, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS,
                                       RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, artifactsFile );
+
+        File localArtifactsFile =
+            new File( project.getBuild().getDirectory(), RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS );
+        writeArtifactLocations( localArtifactsFile, getAllProjectArtifacts( project ) );
     }
 
+    /**
+     * Returns a map from classifiers to artifact files of the given project. The classifier
+     * <code>null</code> is mapped to the project's main artifact.
+     */
+    private static Map<String, File> getAllProjectArtifacts( MavenProject project )
+    {
+        Map<String, File> artifacts = new HashMap<String, File>();
+        Artifact mainArtifact = project.getArtifact();
+        if ( mainArtifact != null )
+        {
+            artifacts.put( null, mainArtifact.getFile() );
+        }
+        for ( Artifact attachedArtifact : project.getAttachedArtifacts() )
+        {
+            artifacts.put( attachedArtifact.getClassifier(), attachedArtifact.getFile() );
+        }
+        return artifacts;
+    }
+
+    static void writeArtifactLocations( File outputFile, Map<String, File> artifactLocations )
+        throws MojoExecutionException
+    {
+        Properties outputProperties = new Properties();
+
+        for ( Entry<String, File> entry : artifactLocations.entrySet() )
+        {
+            if ( entry.getKey() == null )
+            {
+                outputProperties.put( "artifact.main", entry.getValue().getAbsolutePath() );
+            }
+            else
+            {
+                outputProperties.put( "artifact.attached." + entry.getKey(), entry.getValue().getAbsolutePath() );
+            }
+        }
+
+        writeProperties( outputProperties, outputFile );
+    }
+
+    private static void writeProperties( Properties properties, File outputFile )
+        throws MojoExecutionException
+    {
+        FileOutputStream outputStream;
+        try
+        {
+            outputStream = new FileOutputStream( outputFile );
+
+            try
+            {
+                properties.store( outputStream, null );
+            }
+            finally
+            {
+                outputStream.close();
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( "I/O exception while writing " + outputFile, e );
+        }
+    }
 }

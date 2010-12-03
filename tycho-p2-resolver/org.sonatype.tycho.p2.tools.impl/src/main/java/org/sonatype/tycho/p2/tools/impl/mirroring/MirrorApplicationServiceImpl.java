@@ -16,8 +16,6 @@ import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.sonatype.tycho.p2.repository.ModuleArtifactRepositoryDescriptor;
-import org.sonatype.tycho.p2.repository.ModuleArtifactRepositoryMap;
 import org.sonatype.tycho.p2.tools.BuildContext;
 import org.sonatype.tycho.p2.tools.FacadeException;
 import org.sonatype.tycho.p2.tools.RepositoryReferences;
@@ -42,7 +40,7 @@ public class MirrorApplicationServiceImpl
         {
             final MirrorApplication mirrorApp = new MirrorApplication( agent );
 
-            setSourceRepositories( mirrorApp, agent, sources );
+            setSourceRepositories( mirrorApp, sources );
 
             final RepositoryDescriptor destinationDescriptor = new RepositoryDescriptor();
             destinationDescriptor.setLocation( destination.toURI() );
@@ -122,15 +120,10 @@ public class MirrorApplicationServiceImpl
         }
     }
 
-    private static void setSourceRepositories( MirrorApplication mirrorApp, IProvisioningAgent agent,
-                                               RepositoryReferences sources )
+    private static void setSourceRepositories( MirrorApplication mirrorApp, RepositoryReferences sources )
     {
         setSourceRepositories( mirrorApp, sources.getMetadataRepositories(), RepositoryDescriptor.KIND_METADATA );
         setSourceRepositories( mirrorApp, sources.getArtifactRepositories(), RepositoryDescriptor.KIND_ARTIFACT );
-
-        // provide additional data to load the module artifact repositories
-        agent.registerService( ModuleArtifactRepositoryMap.SERVICE_NAME,
-                               toModuleArtifactRepoMap( sources.getModuleRepositoriesMap() ) );
     }
 
     private static void setSourceRepositories( MirrorApplication mirrorApp, Collection<URI> repositoryLocations,
@@ -143,17 +136,6 @@ public class MirrorApplicationServiceImpl
             repository.setLocation( repositoryLocation );
             mirrorApp.addSource( repository );
         }
-    }
-
-    private static ModuleArtifactRepositoryMap toModuleArtifactRepoMap( final Map<URI, ModuleArtifactRepositoryDescriptor> repositories )
-    {
-        return new ModuleArtifactRepositoryMap()
-        {
-            public ModuleArtifactRepositoryDescriptor getRepositoryDescriptor( URI location )
-            {
-                return repositories.get( location );
-            }
-        };
     }
 
     private static List<IInstallableUnit> toInstallableUnitList( Collection<?> units )

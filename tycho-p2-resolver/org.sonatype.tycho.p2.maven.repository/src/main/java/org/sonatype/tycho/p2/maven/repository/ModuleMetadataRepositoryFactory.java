@@ -25,15 +25,21 @@ public class ModuleMetadataRepositoryFactory
     public IMetadataRepository load( URI location, int flags, IProgressMonitor monitor )
         throws ProvisionException
     {
-        if ( "file".equals( location.getScheme() ) )
+        File repositoryDir = RepositoryFactoryTools.asFile( location );
+        if ( repositoryDir != null )
         {
-            File repositoryDir = new File( location );
-            File metadataFile = ModuleMetadataRepository.getMetadataFile( repositoryDir );
-            if ( metadataFile.isFile() )
-            {
-                RepositoryFactoryTools.verifyModifiableNotRequested( flags, REPOSITORY_TYPE );
-                return new ModuleMetadataRepository( getAgent(), repositoryDir );
-            }
+            return load( repositoryDir, flags );
+        }
+        return null;
+    }
+
+    private ModuleMetadataRepository load( File repositoryDir, int flags )
+        throws ProvisionException
+    {
+        if ( ModuleMetadataRepository.canAttemptRead( repositoryDir ) )
+        {
+            RepositoryFactoryTools.verifyModifiableNotRequested( flags, REPOSITORY_TYPE );
+            return new ModuleMetadataRepository( getAgent(), repositoryDir );
         }
         return null;
     }

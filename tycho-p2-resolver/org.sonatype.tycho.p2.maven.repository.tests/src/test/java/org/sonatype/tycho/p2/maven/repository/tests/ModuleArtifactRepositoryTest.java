@@ -9,14 +9,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -26,9 +22,6 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonatype.tycho.p2.maven.repository.ModuleArtifactRepository;
-import org.sonatype.tycho.p2.repository.GAV;
-import org.sonatype.tycho.p2.repository.ModuleArtifactRepositoryDescriptor;
-import org.sonatype.tycho.p2.repository.ModuleArtifactRepositoryMap;
 
 @SuppressWarnings( "restriction" )
 public class ModuleArtifactRepositoryTest
@@ -46,8 +39,6 @@ public class ModuleArtifactRepositoryTest
 
     private static File moduleDir;
 
-    private static ModuleArtifactRepositoryDescriptor moduleDescriptor;
-
     private File tempDir = null;
 
     private ModuleArtifactRepository subject;
@@ -57,7 +48,6 @@ public class ModuleArtifactRepositoryTest
         throws Exception
     {
         moduleDir = new File( "resources/repositories/module/target" ).getAbsoluteFile();
-        moduleDescriptor = createModuleDescriptor();
 
         generateBinaryTestFile( new File( moduleDir, "the-bundle.jar" ), BUNDLE_ARTIFACT_SIZE );
         generateBinaryTestFile( new File( moduleDir, "the-sources.jar" ), SOURCE_ARTIFACT_SIZE );
@@ -75,7 +65,7 @@ public class ModuleArtifactRepositoryTest
     public void testLoadRepository()
         throws Exception
     {
-        subject = new ModuleArtifactRepository( null, moduleDir.toURI(), moduleDescriptor );
+        subject = new ModuleArtifactRepository( null, moduleDir );
 
         assertGetArtifact( subject, BUNDLE_ARTIFACT_KEY, BUNDLE_ARTIFACT_SIZE );
         assertGetArtifact( subject, SOURCE_ARTIFACT_KEY, SOURCE_ARTIFACT_SIZE );
@@ -87,27 +77,12 @@ public class ModuleArtifactRepositoryTest
     {
         tempDir = createTempDir();
         IProvisioningAgent agent = Activator.createProvisioningAgent( tempDir.toURI() );
-        agent.registerService( ModuleArtifactRepositoryMap.SERVICE_NAME,
-                               getMapServiceForModule( moduleDir.toURI(), moduleDescriptor ) );
         IArtifactRepositoryManager repoManager =
             (IArtifactRepositoryManager) agent.getService( IArtifactRepositoryManager.SERVICE_NAME );
 
         IArtifactRepository subject = repoManager.loadRepository( moduleDir.toURI(), null );
 
         assertEquals( subject.getArtifactDescriptors( SOURCE_ARTIFACT_KEY ).length, 1 );
-    }
-
-    @Test( expected = ProvisionException.class )
-    public void testLoadRepositoryFailureWithFactory()
-        throws Exception
-    {
-        tempDir = createTempDir();
-        IProvisioningAgent agent = Activator.createProvisioningAgent( tempDir.toURI() );
-        IArtifactRepositoryManager repoManager =
-            (IArtifactRepositoryManager) agent.getService( IArtifactRepositoryManager.SERVICE_NAME );
-
-        // no information available on file layout in the module -> can't load as artifact repository
-        repoManager.loadRepository( moduleDir.toURI(), null );
     }
 
     private static void assertGetArtifact( IArtifactRepository subject, IArtifactKey artifactKey, int expectedSize )
@@ -120,36 +95,10 @@ public class ModuleArtifactRepositoryTest
         assertEquals( expectedSize, artifactContent.size() );
     }
 
-    private static ModuleArtifactRepositoryMap getMapServiceForModule( final URI moduleLocation,
-                                                                       final ModuleArtifactRepositoryDescriptor moduleDescriptor )
-    {
-        return new ModuleArtifactRepositoryMap()
-        {
-            public ModuleArtifactRepositoryDescriptor getRepositoryDescriptor( URI location )
-            {
-                if ( location.equals( moduleLocation ) )
-                    return moduleDescriptor;
-                else
-                    return null;
-            }
-        };
-    }
-
-    private static ModuleArtifactRepositoryDescriptor createModuleDescriptor()
-    {
-        Map<String, File> moduleArtifacts = new HashMap<String, File>();
-        moduleArtifacts.put( "p2artifacts", new File( moduleDir, "p2artifacts.xml" ) );
-        moduleArtifacts.put( null, new File( moduleDir, "the-bundle.jar" ) );
-        moduleArtifacts.put( "sources", new File( moduleDir, "the-sources.jar" ) );
-        ModuleArtifactRepositoryDescriptor descriptor =
-            new ModuleArtifactRepositoryDescriptor( moduleDir, new GAV( "TYCHO285EclipseSourceBundles", "bundle",
-                                                                        "1.2.3-SNAPSHOT" ), moduleArtifacts );
-        return descriptor;
-    }
-
     private static void generateBinaryTestFile( File file, int size )
         throws FileNotFoundException, IOException
     {
+        file.getParentFile().mkdirs();
         FileOutputStream fos = new FileOutputStream( file );
         try
         {

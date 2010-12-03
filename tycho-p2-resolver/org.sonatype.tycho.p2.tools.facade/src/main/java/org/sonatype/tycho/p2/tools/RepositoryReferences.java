@@ -4,11 +4,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.sonatype.tycho.p2.repository.ModuleArtifactRepositoryDescriptor;
 
 /**
  * List of p2 repositories for a p2 operation. Instances of this class store a list of metadata and
@@ -19,13 +15,6 @@ public class RepositoryReferences
     final List<URI> metadataRepos = new ArrayList<URI>();
 
     List<URI> artifactRepos;
-
-    /**
-     * Additional information needed to load module artifact repositories. Since module artifact
-     * repositories are artifact repositories, all entries in this list are also contained in the
-     * member {@link #artifactRepos}.
-     */
-    Map<URI, ModuleArtifactRepositoryDescriptor> moduleRepos;
 
     /**
      * Adds the metadata repository at the given location.
@@ -52,21 +41,7 @@ public class RepositoryReferences
     }
 
     /**
-     * Adds an artifact repository with Maven module layout.
-     * 
-     * @param moduleArtifactRepository The descriptor of the module artifact repository
-     */
-    public void addArtifactRepository( ModuleArtifactRepositoryDescriptor moduleArtifactRepository )
-    {
-        if ( moduleRepos == null )
-            moduleRepos = new HashMap<URI, ModuleArtifactRepositoryDescriptor>();
-        moduleRepos.put( moduleArtifactRepository.getRepositoryLocation().toURI(), moduleArtifactRepository );
-
-        addArtifactRepository( moduleArtifactRepository.getRepositoryLocation() );
-    }
-
-    /**
-     * Returns the list of metadata repositories in the order that they were added.
+     * Returns the list of metadata repositories in the order in which they were added.
      * 
      * @return the list metadata repositories.
      */
@@ -76,8 +51,7 @@ public class RepositoryReferences
     }
 
     /**
-     * Returns the list of artifact repositories in the order that they were added. This includes
-     * both normal repositories as well as module artifact repositories.
+     * Returns the list of artifact repositories in the order in which they were added.
      * 
      * @return the list of artifact repositories.
      */
@@ -86,18 +60,5 @@ public class RepositoryReferences
         if ( artifactRepos == null )
             return Collections.emptyList();
         return Collections.unmodifiableList( artifactRepos );
-    }
-
-    /**
-     * Returns the descriptors of the module artifact repositories, indexed by the location of these
-     * repositories.
-     * 
-     * @return a map from module artifact repository locations to their descriptor
-     */
-    public Map<URI, ModuleArtifactRepositoryDescriptor> getModuleRepositoriesMap()
-    {
-        if ( moduleRepos == null )
-            return Collections.emptyMap();
-        return Collections.unmodifiableMap( moduleRepos );
     }
 }

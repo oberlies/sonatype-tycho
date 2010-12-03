@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -20,8 +18,6 @@ import org.codehaus.tycho.TychoConstants;
 import org.sonatype.tycho.ArtifactKey;
 import org.sonatype.tycho.equinox.EquinoxServiceFactory;
 import org.sonatype.tycho.p2.MetadataSerializable;
-import org.sonatype.tycho.p2.repository.GAV;
-import org.sonatype.tycho.p2.repository.ModuleArtifactRepositoryDescriptor;
 import org.sonatype.tycho.p2.repository.RepositoryLayoutHelper;
 import org.sonatype.tycho.p2.tools.RepositoryReferences;
 
@@ -100,37 +96,27 @@ public class RepositoryReferenceTool
             if ( ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals( packaging )
                 || ArtifactKey.TYPE_ECLIPSE_FEATURE.equals( packaging ) )
             {
-                File p2ContentXML =
-                    getProjectArtifact( referencedProject, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA );
-                if ( p2ContentXML == null )
-                    throw new MojoFailureException( "Missing required artifact '"
-                        + RepositoryLayoutHelper.CLASSIFIER_P2_METADATA + "' in module " + referencedProject.getId() );
+                File metadataXml =
+                    getAttachedArtifact( referencedProject, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA );
+                File artifactXml =
+                    getAttachedArtifact( referencedProject, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS );
+                File artifactLocations =
+                    new File( artifactXml.getParentFile(), RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS );
+                if ( !artifactLocations.isFile() )
+                {
+                    throw new MojoFailureException( "Missing required file \"" + artifactLocations
+                        + "\" in target folder of module " + referencedProject.getId() );
+                }
 
-                sources.addMetadataRepository( p2ContentXML.getParentFile() );
-                sources.addArtifactRepository( getModuleArtifactRepositoryDescriptor( referencedProject ) );
+                sources.addMetadataRepository( metadataXml.getParentFile() );
+                sources.addArtifactRepository( artifactXml.getParentFile() );
             }
         }
     }
 
-    private static ModuleArtifactRepositoryDescriptor getModuleArtifactRepositoryDescriptor( MavenProject project )
+    private static File getAttachedArtifact( MavenProject project, String classifier )
+        throws MojoFailureException
     {
-        File repositoryLocation =
-            getProjectArtifact( project, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS ).getParentFile();
-        Map<String, File> projectArtifacts = getAllProjectArtifacts( project );
-        return new ModuleArtifactRepositoryDescriptor( repositoryLocation, getGAV( project ), projectArtifacts );
-    }
-
-    private static GAV getGAV( MavenProject project )
-    {
-        return new GAV( project.getGroupId(), project.getArtifactId(), project.getVersion() );
-    }
-
-    private static File getProjectArtifact( MavenProject project, String classifier )
-    {
-        if ( classifier == null )
-        {
-            return project.getArtifact().getFile();
-        }
         for ( Artifact artifact : project.getAttachedArtifacts() )
         {
             if ( classifier.equals( artifact.getClassifier() ) )
@@ -138,22 +124,7 @@ public class RepositoryReferenceTool
                 return artifact.getFile();
             }
         }
-        return null;
-    }
-
-    /**
-     * Returns a map from classifiers to artifact files of the given project. The classifier
-     * <code>null</code> is mapped to the project's main artifact.
-     */
-    private static Map<String, File> getAllProjectArtifacts( MavenProject project )
-    {
-        Map<String, File> artifacts = new HashMap<String, File>();
-        artifacts.put( null, project.getArtifact().getFile() );
-        for ( Artifact attachedArtifact : project.getAttachedArtifacts() )
-        {
-            artifacts.put( attachedArtifact.getClassifier(), attachedArtifact.getFile() );
-        }
-        return artifacts;
+        throw new MojoFailureException( "Missing required artifact '" + classifier + "' in module " + project.getId() );
     }
 
     /**

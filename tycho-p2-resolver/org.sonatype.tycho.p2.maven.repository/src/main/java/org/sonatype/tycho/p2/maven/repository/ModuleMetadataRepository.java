@@ -47,7 +47,7 @@ public class ModuleMetadataRepository
         {
             if ( RepositoryLayoutHelper.CLASSIFIER_P2_METADATA.equals( classifier ) )
             {
-                return new FileInputStream( getMetadataFile( repositoryDir ) );
+                return new FileInputStream( new File( repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA ) );
             }
             else
             {
@@ -65,8 +65,9 @@ public class ModuleMetadataRepository
 
     }// end nested class
 
-    static File getMetadataFile( File repositoryDir )
+    static boolean canAttemptRead( File repositoryDir )
     {
-        return new File( repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA );
+        File requiredP2MetadataFile = new File( repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA );
+        return requiredP2MetadataFile.isFile();
     }
 }
