@@ -376,7 +376,7 @@ public class P2ResolverImplTest
         Assert.assertEquals( 1, results.size() );
         P2ResolutionResult result = results.get( 0 );
 
-        Assert.assertEquals( 3, result.getArtifacts().size() );
+        Assert.assertEquals( 3, result.getArtifacts().size() ); // the product, bundle01, and the one dependency of bundle01
         Assert.assertEquals( 4, result.getNonReactorUnits().size() );
 
         assertContainsUnit( "org.eclipse.osgi", result.getNonReactorUnits() );

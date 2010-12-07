@@ -45,7 +45,7 @@ public class PublisherServiceFactoryImpl
             setTargetArtifactRepository( publisherInfo, targetRepository, agent );
 
             setContextMetadataRepos( publisherInfo, contextRepos, agent );
-            // no (known) publisher action needs context artifact repositories 
+            // no (known) publisher action needs context artifact repositories
 
             setTargetEnvironments( publisherInfo, context.getEnvironments() );
 

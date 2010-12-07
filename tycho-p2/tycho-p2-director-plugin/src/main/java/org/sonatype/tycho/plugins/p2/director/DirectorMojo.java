@@ -42,7 +42,7 @@ public final class DirectorMojo
             for ( TargetEnvironment env : getEnvironments() )
             {
                 final DirectorApplicationWrapper director = p2.getService( DirectorApplicationWrapper.class );
-                int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_SELF_MODULE;
+                int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
                 RepositoryReferences sources =
                     repositoryReferenceTool.getVisibleRepositories( getProject(), getSession(), flags );
 

@@ -51,7 +51,7 @@ public class ModuleMetadataRepository
             }
             else
             {
-                // doesn't happen
+                // AbstractMavenMetadataRepository doesn't call this method for anything other than the p2metadata artifact
                 throw new IllegalArgumentException();
             }
         }

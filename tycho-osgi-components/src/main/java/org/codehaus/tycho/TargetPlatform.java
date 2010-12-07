@@ -46,7 +46,7 @@ public interface TargetPlatform
     public ArtifactDescriptor getArtifact( ArtifactKey key );
 
     /**
-     * Set of IInstallableUnits in the target platform that come from outside the local reactor, or or 
+     * Set of IInstallableUnits in the target platform that come from outside the local reactor, or
      * <code>null</code> if the the target platform was not resolved from a p2 repository.<br/>
      * 
      * @return Set&lt;IInstallableUnit&gt; or null

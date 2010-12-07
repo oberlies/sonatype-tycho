@@ -53,7 +53,7 @@ public class Tycho188P2EnabledRcpTest
         verifier.verifyErrorFreeLog();
 
         // First run compile to fill output repository
-        // The test will verify that legacy content from former builds is not accumulated (product IU).
+        // The test will verify that old content from former builds is not accumulated (product IU).
         verifier.executeGoal( "package" );
         verifier.verifyErrorFreeLog();
         validatePublishedProducts( verifier, getContentXml( verifier ) );

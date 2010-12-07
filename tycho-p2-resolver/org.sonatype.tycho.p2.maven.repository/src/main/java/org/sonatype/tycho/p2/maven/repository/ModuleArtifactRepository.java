@@ -92,7 +92,7 @@ public class ModuleArtifactRepository
     @Override
     public IStatus resolve( IArtifactDescriptor descriptor )
     {
-        // nothing to do (?)
+        // nothing to do
         return Status.OK_STATUS;
     }
 

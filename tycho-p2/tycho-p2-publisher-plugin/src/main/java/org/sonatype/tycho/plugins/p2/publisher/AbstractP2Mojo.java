@@ -108,7 +108,7 @@ public abstract class AbstractP2Mojo
     protected RepositoryReferences getVisibleRepositories( boolean includePublisherResults )
         throws MojoExecutionException, MojoFailureException
     {
-        int flags = includePublisherResults ? RepositoryReferenceTool.REPOSITORIES_INCLUDE_SELF_MODULE : 0;
+        int flags = includePublisherResults ? RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE : 0;
         return repositoryReferenceTool.getVisibleRepositories( getProject(), getSession(), flags );
     }
 

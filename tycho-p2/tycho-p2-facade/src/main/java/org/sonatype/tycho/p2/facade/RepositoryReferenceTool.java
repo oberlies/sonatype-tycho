@@ -30,7 +30,7 @@ public class RepositoryReferenceTool
      * Option to indicate that the publisher results of the given module shall be included in the
      * list of repositories.
      */
-    public static int REPOSITORIES_INCLUDE_SELF_MODULE = 1;
+    public static int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
     public static String PUBLISHER_REPOSITORY_PATH = "publisherRepository";
 
@@ -38,21 +38,21 @@ public class RepositoryReferenceTool
     private EquinoxServiceFactory osgiServices;
 
     /**
-     * Returns the list of visible p2 repositories for the build of the given module. The list
+     * Returns the list of visible p2 repositories for the build of the current module. The list
      * includes the p2 repositories of the referenced reactor modules, the target platform, and
-     * optionally the module itself. The repositories are sorted in a reasonable order of
+     * optionally the current module itself. The repositories are sorted in a reasonable order of
      * precedence, so if there should be duplicate installable units or artifacts, the hope is that
      * it is deterministic from which repository the unit or artifact is taken. The order is:
      * <ol>
-     * <li>The publisher results of the given module (only if the flag
-     * {@link #REPOSITORIES_INCLUDE_SELF_MODULE} is set),
+     * <li>The publisher results of the current module (only if the flag
+     * {@link #REPOSITORIES_INCLUDE_CURRENT_MODULE} is set),
      * <li>The results of the referenced reactor modules,
      * <li>The non-reactor content of the module's target platform.
      * </ol>
      * 
-     * @param module The module for which the visible repositories shall be returned
-     * @param session The current maven session
-     * @param flags Options flags; supported flags are {@link #REPOSITORIES_INCLUDE_SELF_MODULE}
+     * @param module The current Maven project
+     * @param session The current Maven session
+     * @param flags Options flags; supported flags are {@link #REPOSITORIES_INCLUDE_CURRENT_MODULE}
      * @return a {@link RepositoryReferences} instance with the repositories.
      * @throws MojoExecutionException in case of internal errors
      * @throws MojoFailureException in case required artifacts are missing
@@ -62,7 +62,7 @@ public class RepositoryReferenceTool
     {
         RepositoryReferences repositories = new RepositoryReferences();
 
-        if ( ( flags & REPOSITORIES_INCLUDE_SELF_MODULE ) != 0 )
+        if ( ( flags & REPOSITORIES_INCLUDE_CURRENT_MODULE ) != 0 )
         {
             File publisherResults = new File( module.getBuild().getDirectory(), PUBLISHER_REPOSITORY_PATH );
             repositories.addMetadataRepository( publisherResults );
@@ -87,6 +87,7 @@ public class RepositoryReferenceTool
             if ( ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals( packaging )
                 || ArtifactKey.TYPE_ECLIPSE_FEATURE.equals( packaging ) )
             {
+                // check that expected repository files are there (for more descriptive problem messages)
                 File metadataXml =
                     getAttachedArtifact( referencedProject, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA );
                 File artifactXml =
