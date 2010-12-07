@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -112,7 +113,6 @@ public abstract class AbstractMavenMetadataRepository
 
     public Collection<IRepositoryReference> getReferences()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 }

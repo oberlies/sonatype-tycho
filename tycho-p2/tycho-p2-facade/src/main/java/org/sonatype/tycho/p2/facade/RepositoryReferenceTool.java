@@ -3,7 +3,6 @@ package org.sonatype.tycho.p2.facade;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -37,14 +36,6 @@ public class RepositoryReferenceTool
 
     @Requirement
     private EquinoxServiceFactory osgiServices;
-
-    // TODO delete this method
-    public void write( OutputStream out, TargetPlatform platform, String qualifier )
-        throws IOException
-    {
-        MetadataSerializable serializer = osgiServices.getService( MetadataSerializable.class );
-        serializer.serialize( out, platform.getNonReactorUnits() );
-    }
 
     /**
      * Returns the list of visible p2 repositories for the build of the given module. The list
