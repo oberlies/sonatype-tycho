@@ -12,10 +12,11 @@
 	</properties>
 
 	<modules>
-		<module>bundle1</module>
-		<module>feature</module>
 		<module>repository</module>
 		<module>repository-transitive</module>
+		<module>feature</module>
+		<module>bundle1</module>
+		<module>bundle2</module>
 	</modules>
 
 	<build>

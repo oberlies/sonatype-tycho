@@ -16,7 +16,6 @@ import org.codehaus.tycho.TargetPlatformConfiguration;
 import org.codehaus.tycho.TargetPlatformResolver;
 import org.codehaus.tycho.TychoConstants;
 import org.codehaus.tycho.TychoProject;
-import org.codehaus.tycho.maven.MavenDependencyCollector;
 import org.codehaus.tycho.osgitools.AbstractTychoProject;
 import org.codehaus.tycho.osgitools.DebugUtils;
 import org.sonatype.tycho.ReactorProject;
@@ -79,8 +78,7 @@ public class DefaultTychoDependencyResolver
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver( project );
 
         logger.info( "Resolving target platform for project " + project );
-        TargetPlatform targetPlatform =
-            resolver.resolvePlatform( session, project, reactorProjects, null );
+        TargetPlatform targetPlatform = resolver.resolvePlatform( session, project, reactorProjects, null );
 
         if ( logger.isDebugEnabled() && DebugUtils.isDebugEnabled( session, project ) )
         {
@@ -92,10 +90,10 @@ public class DefaultTychoDependencyResolver
 
         dr.setTargetPlatform( session, project, targetPlatform );
 
-        dr.resolve( session, project );
+        dr.resolveClassPath( session, project );
 
-        MavenDependencyCollector dependencyCollector = new MavenDependencyCollector( project, logger );
-        dr.getDependencyWalker( project ).walk( dependencyCollector );
+        // TODO inline this call; it is only in resolver interface because we need different implementations for local/p2 resolver; should become obsolete with TYCHO-527
+        resolver.injectDependenciesIntoMaven( project, dr, targetPlatform, logger );
 
         if ( logger.isDebugEnabled() && DebugUtils.isDebugEnabled( session, project ) )
         {

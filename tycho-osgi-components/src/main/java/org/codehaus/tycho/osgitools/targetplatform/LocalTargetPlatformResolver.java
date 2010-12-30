@@ -21,12 +21,15 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.tycho.TargetPlatform;
 import org.codehaus.tycho.TargetPlatformConfiguration;
 import org.codehaus.tycho.TargetPlatformResolver;
 import org.codehaus.tycho.TychoConstants;
 import org.codehaus.tycho.TychoProject;
+import org.codehaus.tycho.maven.MavenDependencyCollector;
 import org.codehaus.tycho.model.Feature;
+import org.codehaus.tycho.osgitools.AbstractTychoProject;
 import org.codehaus.tycho.osgitools.BundleReader;
 import org.codehaus.tycho.osgitools.DefaultArtifactKey;
 import org.codehaus.tycho.osgitools.DefaultReactorProject;
@@ -281,5 +284,15 @@ public class LocalTargetPlatformResolver
     {
         // TODO Auto-generated method stub
 
+    }
+
+    public void injectDependenciesIntoMaven( MavenProject project, AbstractTychoProject projectType,
+                                             TargetPlatform targetPlatform, Logger logger )
+    {
+        // walk depencencies for consistency
+        projectType.checkForMissingDependencies( project );
+
+        MavenDependencyCollector dependencyCollector = new MavenDependencyCollector( project, logger );
+        projectType.getDependencyWalker( project ).walk( dependencyCollector );
     }
 }

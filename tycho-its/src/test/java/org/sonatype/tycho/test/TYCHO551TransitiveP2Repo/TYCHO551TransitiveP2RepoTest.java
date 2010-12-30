@@ -39,7 +39,7 @@ public class TYCHO551TransitiveP2RepoTest
         throws IOException
     {
         File pluginsDir = new File( verifier.getBasedir(), MODULE_TRANSITIVE + "/target/repository/plugins" );
-        Assert.assertTrue( checkFileWithPrefixExists( pluginsDir, "org.eclipse.osgi_" ) );
+        Assert.assertTrue( checkFileWithPrefixExists( pluginsDir, "tycho551.bundle2_" ) );
         Assert.assertTrue( checkFileWithPrefixExists( pluginsDir, "org.junit_" ) );
     }
 
@@ -48,7 +48,7 @@ public class TYCHO551TransitiveP2RepoTest
         throws IOException
     {
         File pluginsDir = new File( verifier.getBasedir(), MODULE_NON_TRANSITIVE + "/target/repository/plugins" );
-        Assert.assertFalse( checkFileWithPrefixExists( pluginsDir, "org.eclipse.osgi_" ) );
+        Assert.assertFalse( checkFileWithPrefixExists( pluginsDir, "tycho551.bundle2_" ) );
         Assert.assertFalse( checkFileWithPrefixExists( pluginsDir, "org.junit_" ) );
     }
 

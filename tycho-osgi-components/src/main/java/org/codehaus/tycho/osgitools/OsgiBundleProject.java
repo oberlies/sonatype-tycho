@@ -152,7 +152,7 @@ public class OsgiBundleProject
     }
 
     @Override
-    public void resolve( MavenSession session, MavenProject project )
+    public void resolveClassPath( MavenSession session, MavenProject project )
     {
         TargetPlatform platform = getTargetPlatform( project );
 

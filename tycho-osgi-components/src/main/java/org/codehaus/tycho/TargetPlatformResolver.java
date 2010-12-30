@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.tycho.osgitools.AbstractTychoProject;
 import org.sonatype.tycho.ReactorProject;
 
 /**
@@ -17,4 +19,6 @@ public interface TargetPlatformResolver
 
     public TargetPlatform resolvePlatform( MavenSession session, MavenProject project,
                                            List<ReactorProject> reactorProjects, List<Dependency> dependencies );
+
+    public void injectDependenciesIntoMaven( MavenProject project, AbstractTychoProject projectType, TargetPlatform targetPlatform, Logger logger );
 }

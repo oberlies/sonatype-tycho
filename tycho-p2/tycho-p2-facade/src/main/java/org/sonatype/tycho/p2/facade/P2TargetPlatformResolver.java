@@ -36,6 +36,7 @@ import org.apache.maven.settings.Server;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.tycho.TargetEnvironment;
@@ -43,7 +44,9 @@ import org.codehaus.tycho.TargetPlatform;
 import org.codehaus.tycho.TargetPlatformConfiguration;
 import org.codehaus.tycho.TargetPlatformResolver;
 import org.codehaus.tycho.TychoConstants;
+import org.codehaus.tycho.maven.MavenDependencyGenerator;
 import org.codehaus.tycho.model.Target;
+import org.codehaus.tycho.osgitools.AbstractTychoProject;
 import org.codehaus.tycho.osgitools.DebugUtils;
 import org.codehaus.tycho.osgitools.DefaultArtifactKey;
 import org.codehaus.tycho.osgitools.targetplatform.AbstractTargetPlatformResolver;
@@ -586,5 +589,11 @@ public class P2TargetPlatformResolver
         this.resolverFactory = equinox.getService( P2ResolverFactory.class );
         this.generator = equinox.getService( DependencyMetadataGenerator.class, "(role-hint=dependency-only)" );
         this.sourcesGenerator = equinox.getService( DependencyMetadataGenerator.class, "(role-hint=source-bundle)" );
+    }
+
+    public void injectDependenciesIntoMaven( MavenProject project, AbstractTychoProject projectType,
+                                             TargetPlatform targetPlatform, Logger logger )
+    {
+        MavenDependencyGenerator.injectMavenDependencies( project, targetPlatform, logger );
     }
 }

@@ -10,6 +10,7 @@ import org.codehaus.tycho.TargetPlatform;
 import org.codehaus.tycho.TargetPlatformConfiguration;
 import org.codehaus.tycho.TychoConstants;
 import org.codehaus.tycho.TychoProject;
+import org.codehaus.tycho.osgitools.targetplatform.LocalTargetPlatformResolver;
 import org.codehaus.tycho.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.codehaus.tycho.utils.TychoProjectUtils;
 
@@ -51,7 +52,19 @@ public abstract class AbstractTychoProject
         // do nothing by default
     }
 
-    public abstract void resolve( MavenSession session, MavenProject project );
+    /**
+     * @deprecated Only needed for {@link LocalTargetPlatformResolver}; p2 resolver checks
+     *             consistency itself
+     */
+    @Deprecated
+    public void checkForMissingDependencies( MavenProject project )
+    {
+    }
+
+    public void resolveClassPath( MavenSession session, MavenProject project )
+    {
+        // do nothing by default
+    }
 
     protected TargetEnvironment[] getEnvironments( MavenProject project, TargetEnvironment environment )
     {

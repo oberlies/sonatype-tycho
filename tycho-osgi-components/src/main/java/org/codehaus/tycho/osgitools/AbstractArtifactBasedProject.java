@@ -1,6 +1,5 @@
 package org.codehaus.tycho.osgitools;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.tycho.ArtifactDependencyVisitor;
 import org.codehaus.tycho.ArtifactDependencyWalker;
@@ -29,7 +28,7 @@ public abstract class AbstractArtifactBasedProject
     protected abstract ArtifactDependencyWalker newDependencyWalker( MavenProject project, TargetEnvironment environment );
 
     @Override
-    public void resolve( MavenSession session, MavenProject project )
+    public void checkForMissingDependencies( MavenProject project )
     {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration( project );
 
