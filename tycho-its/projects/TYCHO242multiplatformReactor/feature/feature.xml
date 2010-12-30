@@ -27,7 +27,7 @@
          id="fragment.linux"
          os="linux"
          ws="gtk"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -47,9 +47,9 @@
 
    <plugin
          id="bundle.osx"
-         os="osx"
-         ws="cocoa"
-         arch="x86_64"
+         os="macosx"
+         ws="carbon"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"

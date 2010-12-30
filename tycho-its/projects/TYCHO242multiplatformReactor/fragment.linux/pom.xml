@@ -15,11 +15,13 @@
         <groupId>org.sonatype.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
         <configuration>
-          <environment>
-            <os>linux</os>
-            <ws>gtk</ws>
-            <arch>x86</arch>
-          </environment>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
         </configuration>
       </plugin>
     </plugins>
