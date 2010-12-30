@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -39,6 +40,7 @@ public class DefaultTychoDependencyResolver
     private Map<String, TychoProject> projectTypes;
 
     public void setupProject( MavenSession session, MavenProject project, ReactorProject reactorProject )
+        throws MavenExecutionException
     {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get( project.getPackaging() );
         if ( dr == null )
