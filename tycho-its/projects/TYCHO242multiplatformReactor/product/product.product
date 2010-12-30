@@ -7,7 +7,7 @@
    </plugins>
 
    <features>
-      <feature id="feature" version="0.0.1.qualifier"/>
+      <feature id="tycho242.feature" version="0.0.1.qualifier"/>
    </features>
 
 
