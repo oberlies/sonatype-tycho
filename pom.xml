@@ -41,45 +41,8 @@
 
     <maven-version>3.0</maven-version>
 
-    <!-- 
-      Version corresponds to Eclipse 3.6.2
-
-      EQUINOX_VERSION=3.6.2.R36x_v20110210
-
-      /opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar -Dsources=org.eclipse.osgi.source_$EQUINOX_VERSION.jar \
-        -DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar
-
-      /opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar \
-        -DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
-        -DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
-
-      /opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi.source_$EQUINOX_VERSION.jar -Dclassifier=sources \
-        -DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
-        -DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
-
-      Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
-     -->
-    <equinoxVersion>3.6.2.R36x_v20110210</equinoxVersion>
-
-    <!-- 
-      Version corresponds to Eclipse 3.6.1
-      
-      JDT_VERSION=3.6.2.v_A76_R36x
-      
-      /opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar -Dsources=org.eclipse.jdt.core.source_$JDT_VERSION.jar \
-        -DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar
-
-      /opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar \
-        -DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
-        -DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
-
-      /opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core.source_$JDT_VERSION.jar -Dclassifier=sources \
-        -DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
-        -DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
-
-      Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
-     -->
-    <jdtVersion>3.6.2.v_A76_R36x</jdtVersion>
+    <equinoxVersion>3.6.2</equinoxVersion>
+    <jdtVersion>3.6.2</jdtVersion>
 
     <!-- version of tycho used by this build -->
     <tychoBootstrapVersion>0.10.0</tychoBootstrapVersion>
@@ -145,12 +108,12 @@
       </dependency>
 
       <dependency>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>org.eclipse.osgi</groupId>
         <artifactId>org.eclipse.osgi</artifactId>
         <version>${equinoxVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.tycho</groupId>
+        <groupId>org.eclipse.jdt</groupId>
         <artifactId>org.eclipse.jdt.core</artifactId>
         <version>${jdtVersion}</version>
       </dependency>
@@ -410,10 +373,10 @@
 
   <repositories>
     <repository>
-      <id>sonatype-release</id>
-      <url>http://repository.sonatype.org/content/groups/sonatype-public-grid</url>
+      <id>eclipse.testing</id>
+      <url>http://maven.eclipse.org/nexus/content/repositories/testing</url>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
       <releases>
         <enabled>true</enabled>
